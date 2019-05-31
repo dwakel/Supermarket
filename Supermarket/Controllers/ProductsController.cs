@@ -23,6 +23,7 @@ namespace Supermarket.Controllers
             try
             {
                 InitializeData();
+                TempData.Keep();
                 return View(db.Products.ToList<Product>());
             }
             catch (Exception)
@@ -34,6 +35,7 @@ namespace Supermarket.Controllers
         // GET: Products/Details/5
         public async Task<ActionResult> Details(int? id)
         {
+            InitializeData();
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -50,6 +52,7 @@ namespace Supermarket.Controllers
         // GET: Products/Create
         public ActionResult Create()
         {
+            InitializeData();
             return View();
         }
 
@@ -60,6 +63,7 @@ namespace Supermarket.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create([Bind(Include = "Name,Description,Price,Code")] Product product)
         {
+            InitializeData();
             if (ModelState.IsValid)
             {
                 if (TempData["count"] == null)
@@ -70,6 +74,7 @@ namespace Supermarket.Controllers
                 product.Id = Convert.ToInt32(TempData["count"]);
                 db.Products.Add(product);
                 TempData["products"] = db;
+                TempData.Keep();
                 return RedirectToAction("Index");
             }
 
@@ -110,6 +115,7 @@ namespace Supermarket.Controllers
         // GET: Products/Delete/5
         public async Task<ActionResult> Delete(int? id)
         {
+            InitializeData();
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -128,6 +134,8 @@ namespace Supermarket.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteConfirmed(int id)
         {
+            InitializeData();
+            TempData.Keep();
             Product product = db.Products[id - 1];
             db.Products.Remove(product);
             return RedirectToAction("Index");
