@@ -23,6 +23,7 @@ namespace Supermarket.Models
 
         public SupermarketContext()
         {
+            Products = new List<Product>();
         }
 
         public IList<Supermarket.Models.Product> Products { get; set; }

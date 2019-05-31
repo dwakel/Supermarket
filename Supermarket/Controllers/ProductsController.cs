@@ -15,11 +15,14 @@ namespace Supermarket.Controllers
     {
         private SupermarketContext db = new SupermarketContext();
 
+        private void InitializeData() => db = TempData["products"] as SupermarketContext ?? new SupermarketContext();
+
         // GET: Products
         public async Task<ActionResult> Index()
         {
             try
             {
+                InitializeData();
                 return View(db.Products.ToList<Product>());
             }
             catch (Exception)
@@ -59,7 +62,14 @@ namespace Supermarket.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (TempData["count"] == null)
+                    TempData["count"] = 1;
+                else
+                    TempData["count"] = Convert.ToInt32(TempData["count"]) + 1;
+
+                product.Id = Convert.ToInt32(TempData["count"]);
                 db.Products.Add(product);
+                TempData["products"] = db;
                 return RedirectToAction("Index");
             }
 
@@ -73,7 +83,7 @@ namespace Supermarket.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            int pId = id ?? new int();
+            int pId = (id - 1) ?? new int();
             Product product = db.Products[pId];
             if (product == null)
             {
@@ -92,7 +102,8 @@ namespace Supermarket.Controllers
             if (ModelState.IsValid)
             {
                 //db.Entry(product).State = EntityState.Modified;
-                await db.SaveChangesAsync();
+                //await db.SaveChangesAsync();
+                db.Products.Insert(product.Id - 1, product);
                 return RedirectToAction("Index");
             }
             return View(product);
@@ -105,7 +116,7 @@ namespace Supermarket.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            int pId = id ?? new int();
+            int pId = (id - 1) ?? new int();
             Product product = db.Products[pId];
             if (product == null)
             {
@@ -119,7 +130,7 @@ namespace Supermarket.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteConfirmed(int id)
         {
-            Product product = db.Products[id];
+            Product product = db.Products[id - 1];
             db.Products.Remove(product);
             return RedirectToAction("Index");
         }
