@@ -15,15 +15,14 @@ namespace Supermarket.Controllers
     {
         private SupermarketContext db = new SupermarketContext();
 
-        private void InitializeData() => db = TempData["products"] as SupermarketContext ?? new SupermarketContext();
+        private async Task InitializeData() => db = TempData["products"] as SupermarketContext ?? new SupermarketContext();
 
         // GET: Products
         public async Task<ActionResult> Index()
         {
             try
             {
-                InitializeData();
-                TempData.Keep();
+                await InitializeData().ContinueWith(x => TempData.Keep());
                 return View(db.Products.ToList<Product>());
             }
             catch (Exception)
@@ -35,7 +34,7 @@ namespace Supermarket.Controllers
         // GET: Products/Details/5
         public async Task<ActionResult> Details(int? id)
         {
-            InitializeData();
+            await InitializeData().ContinueWith(x => TempData.Keep());
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -50,9 +49,9 @@ namespace Supermarket.Controllers
         }
 
         // GET: Products/Create
-        public ActionResult Create()
+        public async Task<ActionResult> Create()
         {
-            InitializeData();
+            await InitializeData().ContinueWith(x => TempData.Keep());
             return View();
         }
 
@@ -63,7 +62,7 @@ namespace Supermarket.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create([Bind(Include = "Name,Description,Price,Code")] Product product)
         {
-            InitializeData();
+            await InitializeData().ContinueWith(x => TempData.Keep());
             if (ModelState.IsValid)
             {
                 if (TempData["count"] == null)
@@ -84,6 +83,7 @@ namespace Supermarket.Controllers
         // GET: Products/Edit/5
         public async Task<ActionResult> Edit(int? id)
         {
+            await InitializeData().ContinueWith(x => TempData.Keep());
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -104,6 +104,7 @@ namespace Supermarket.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit([Bind(Include = "Id,Name,Description,Price,Code")] Product product)
         {
+            await InitializeData().ContinueWith(x => TempData.Keep());
             if (ModelState.IsValid)
             {
                 db.Products.Insert(product.Id - 1, product);
@@ -115,7 +116,8 @@ namespace Supermarket.Controllers
         // GET: Products/Delete/5
         public async Task<ActionResult> Delete(int? id)
         {
-            InitializeData();
+            await InitializeData().ContinueWith(x => TempData.Keep());
+            TempData.Keep();
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -134,7 +136,7 @@ namespace Supermarket.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteConfirmed(int id)
         {
-            InitializeData();
+            await InitializeData().ContinueWith(x => TempData.Keep());
             TempData.Keep();
             Product product = db.Products[id - 1];
             db.Products.Remove(product);
