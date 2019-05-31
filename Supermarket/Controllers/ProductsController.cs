@@ -101,8 +101,6 @@ namespace Supermarket.Controllers
         {
             if (ModelState.IsValid)
             {
-                //db.Entry(product).State = EntityState.Modified;
-                //await db.SaveChangesAsync();
                 db.Products.Insert(product.Id - 1, product);
                 return RedirectToAction("Index");
             }
